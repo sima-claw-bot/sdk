@@ -10,6 +10,7 @@ using Microsoft.NET.HostModel.ComHost;
 
 namespace Microsoft.NET.Build.Tasks
 {
+    [MSBuildMultiThreadableTask]
     public class GenerateClsidMap : TaskBase
     {
         [Required]
