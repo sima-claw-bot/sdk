@@ -6,6 +6,7 @@ using Microsoft.Build.Utilities;
 
 namespace Microsoft.NET.Build.Tasks.ConflictResolution
 {
+    [MSBuildMultiThreadableTask]
     public class ResolvePackageFileConflicts : TaskBase
     {
         private HashSet<ITaskItem?> referenceConflicts = new();

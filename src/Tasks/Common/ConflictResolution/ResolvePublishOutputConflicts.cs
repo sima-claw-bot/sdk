@@ -5,6 +5,7 @@ using Microsoft.Build.Framework;
 
 namespace Microsoft.NET.Build.Tasks.ConflictResolution
 {
+    [MSBuildMultiThreadableTask]
     public class ResolveOverlappingItemGroupConflicts : TaskBase
     {
         [Required]
