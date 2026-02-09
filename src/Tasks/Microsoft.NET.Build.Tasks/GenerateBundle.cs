@@ -6,6 +6,7 @@ using Microsoft.NET.HostModel.Bundle;
 
 namespace Microsoft.NET.Build.Tasks
 {
+    [MSBuildMultiThreadableTask]
     public class GenerateBundle : TaskBase, ICancelableTask
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();

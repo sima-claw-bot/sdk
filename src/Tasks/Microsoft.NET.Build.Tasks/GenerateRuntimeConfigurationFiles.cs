@@ -17,6 +17,7 @@ namespace Microsoft.NET.Build.Tasks
     /// Generates the $(project).runtimeconfig.json and optionally $(project).runtimeconfig.dev.json files
     /// for a project.
     /// </summary>
+    [MSBuildMultiThreadableTask]
     public class GenerateRuntimeConfigurationFiles : TaskBase
     {
         public string AssetsFilePath { get; set; }
