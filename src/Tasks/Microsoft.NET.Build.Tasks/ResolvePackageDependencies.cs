@@ -18,6 +18,7 @@ namespace Microsoft.NET.Build.Tasks
     /// <remarks>
     /// Only called for backwards compatability, when <c>ResolvePackageDependencies</c> is true.
     /// </remarks>
+    [MSBuildMultiThreadableTask]
     public sealed class ResolvePackageDependencies : TaskBase
     {
         private readonly Dictionary<string, string> _fileTypes = new(StringComparer.OrdinalIgnoreCase);
