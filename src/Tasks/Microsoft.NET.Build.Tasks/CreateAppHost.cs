@@ -13,6 +13,7 @@ namespace Microsoft.NET.Build.Tasks
     /// Creates the runtime host to be used for an application.
     /// This embeds the application DLL path into the apphost and performs additional customizations as requested.
     /// </summary>
+    [MSBuildMultiThreadableTask]
     public class CreateAppHost : TaskBase
     {
         /// <summary>

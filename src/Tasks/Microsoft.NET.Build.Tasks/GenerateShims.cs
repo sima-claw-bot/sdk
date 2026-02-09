@@ -10,6 +10,7 @@ using NuGet.Versioning;
 
 namespace Microsoft.NET.Build.Tasks
 {
+    [MSBuildMultiThreadableTask]
     public sealed class GenerateShims : TaskBase
     {
         /// <summary>
