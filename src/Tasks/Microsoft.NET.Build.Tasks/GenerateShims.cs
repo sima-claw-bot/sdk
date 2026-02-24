@@ -77,6 +77,12 @@ namespace Microsoft.NET.Build.Tasks
 
         protected override void ExecuteCore()
         {
+            if (ShimRuntimeIdentifiers.Length == 0)
+            {
+                EmbeddedApphostPaths = Array.Empty<ITaskItem>();
+                return;
+            }
+
             var embeddedApphostPaths = new List<ITaskItem>();
             foreach (var runtimeIdentifier in ShimRuntimeIdentifiers.Select(r => r.ItemSpec))
             {
@@ -108,41 +114,7 @@ namespace Microsoft.NET.Build.Tasks
                         "any",
                         ToolEntryPoint});
 
-                try
-                {
-                    var windowsGraphicalUserInterface = runtimeIdentifier.StartsWith("win") && "WinExe".Equals(OutputType, StringComparison.OrdinalIgnoreCase);
-                    if (runtimeIdentifier.StartsWith("win"))
-                    {
-                        HostWriter.CreateAppHost(appHostSourceFilePath: resolvedApphostAssetPath,
-                                                 appHostDestinationFilePath: appHostDestinationFilePath,
-                                                 appBinaryFilePath: appBinaryFilePath,
-                                                 windowsGraphicalUserInterface: windowsGraphicalUserInterface,
-                                                 assemblyToCopyResourcesFrom: (string)TaskEnvironment.GetAbsolutePath(IntermediateAssembly));
-                    }
-                    else
-                    {
-                        // by passing null to assemblyToCopyResourcesFrom, it will skip copying resources,
-                        // which is only supported on Windows
-                        if (windowsGraphicalUserInterface)
-                        {
-                            Log.LogWarning(Strings.AppHostCustomizationRequiresWindowsHostWarning);
-                        }
-
-                        HostWriter.CreateAppHost(appHostSourceFilePath: resolvedApphostAssetPath,
-                                                 appHostDestinationFilePath: appHostDestinationFilePath,
-                                                 appBinaryFilePath: appBinaryFilePath,
-                                                 windowsGraphicalUserInterface: false,
-                                                 assemblyToCopyResourcesFrom: null);
-                    }
-                }
-                catch (AppNameTooLongException ex)
-                {
-                    throw new BuildErrorException(Strings.FileNameIsTooLong, ex.LongName);
-                }
-                catch (PlaceHolderNotFoundInAppHostException ex)
-                {
-                    throw new BuildErrorException(Strings.AppHostHasBeenModified, resolvedApphostAssetPath, BitConverter.ToString(ex.MissingPattern));
-                }
+                CreateAppHost(runtimeIdentifier, resolvedApphostAssetPath, appHostDestinationFilePath, appBinaryFilePath);
 
                 var item = new TaskItem(appHostDestinationFilePath);
                 item.SetMetadata(MetadataKeys.ShimRuntimeIdentifier, runtimeIdentifier);
@@ -150,6 +122,45 @@ namespace Microsoft.NET.Build.Tasks
             }
 
             EmbeddedApphostPaths = embeddedApphostPaths.ToArray();
+        }
+
+        private void CreateAppHost(string runtimeIdentifier, string resolvedApphostAssetPath, string appHostDestinationFilePath, string appBinaryFilePath)
+        {
+            try
+            {
+                var windowsGraphicalUserInterface = runtimeIdentifier.StartsWith("win") && "WinExe".Equals(OutputType, StringComparison.OrdinalIgnoreCase);
+                if (runtimeIdentifier.StartsWith("win"))
+                {
+                    HostWriter.CreateAppHost(appHostSourceFilePath: resolvedApphostAssetPath,
+                                             appHostDestinationFilePath: appHostDestinationFilePath,
+                                             appBinaryFilePath: appBinaryFilePath,
+                                             windowsGraphicalUserInterface: windowsGraphicalUserInterface,
+                                             assemblyToCopyResourcesFrom: (string)TaskEnvironment.GetAbsolutePath(IntermediateAssembly));
+                }
+                else
+                {
+                    // by passing null to assemblyToCopyResourcesFrom, it will skip copying resources,
+                    // which is only supported on Windows
+                    if (windowsGraphicalUserInterface)
+                    {
+                        Log.LogWarning(Strings.AppHostCustomizationRequiresWindowsHostWarning);
+                    }
+
+                    HostWriter.CreateAppHost(appHostSourceFilePath: resolvedApphostAssetPath,
+                                             appHostDestinationFilePath: appHostDestinationFilePath,
+                                             appBinaryFilePath: appBinaryFilePath,
+                                             windowsGraphicalUserInterface: false,
+                                             assemblyToCopyResourcesFrom: null);
+                }
+            }
+            catch (AppNameTooLongException ex)
+            {
+                throw new BuildErrorException(Strings.FileNameIsTooLong, ex.LongName);
+            }
+            catch (PlaceHolderNotFoundInAppHostException ex)
+            {
+                throw new BuildErrorException(Strings.AppHostHasBeenModified, resolvedApphostAssetPath, BitConverter.ToString(ex.MissingPattern));
+            }
         }
 
         private string GetApphostAsset(ITaskItem[] apphostsForShimRuntimeIdentifiers, string runtimeIdentifier)
