@@ -727,7 +727,8 @@ namespace Microsoft.NET.Build.Tasks
                 _targetFramework = task.TargetFramework;
 
                 _task = task;
-                _lockFile = new LockFileCache(task).GetLockFile(task.TaskEnvironment.GetAbsolutePath(task.ProjectAssetsFile));
+                string projectAssetsFile = task.TaskEnvironment?.GetAbsolutePath(task.ProjectAssetsFile) ?? task.ProjectAssetsFile;
+                _lockFile = new LockFileCache(task).GetLockFile(projectAssetsFile);
                 _packageResolver = NuGetPackageResolver.CreateResolver(_lockFile);
 
                 //  If we are doing a design-time build, we do not want to fail the build if we can't find the
